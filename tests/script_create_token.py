@@ -11,8 +11,8 @@ from datetime import UTC, datetime
 
 from dotenv import load_dotenv
 
-from aurumaide.utility.teamcity import TeamCityError
-from aurumaide.utility.teamcity_token import TeamCityTokenManager
+from aurumaide.teamcity.client import TeamCityError
+from aurumaide.teamcity.token import TeamCityTokenManager
 
 
 def main() -> int:

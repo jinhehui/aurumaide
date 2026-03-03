@@ -16,14 +16,14 @@ from typing import Any
 
 import urllib3
 
-from aurumaide.utility.logger import initialize
-from aurumaide.utility.teamcity import (
+from aurumaide.teamcity.client import (
     Build,
     Project,
     TeamCityAPIError,
     TeamCityClient,
     TeamCityError,
 )
+from aurumaide.utility.logger import initialize
 
 DEFAULT_PROJECT_NAME = "Quantifi"
 

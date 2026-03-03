@@ -1,4 +1,4 @@
-"""Tests for aurumaide.utility.teamcity_token."""
+"""Tests for aurumaide.teamcity.token."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests as requests_lib
 
-from aurumaide.utility.teamcity import TeamCityAPIError, TeamCityError
-from aurumaide.utility.teamcity_token import TeamCityTokenManager, Token
+from aurumaide.teamcity.client import TeamCityAPIError, TeamCityError
+from aurumaide.teamcity.token import TeamCityTokenManager, Token
 
 # ---------------------------------------------------------------------------
 # Data model
@@ -95,7 +95,7 @@ class TestTokenManagerInit:
             assert mgr.username == "env-user"
             assert mgr.password == "env-pass"
 
-    @patch("aurumaide.utility.teamcity_token.get_config")
+    @patch("aurumaide.teamcity.token.get_config")
     def test_config_fallback_base_url(self, mock_gc):
         cfg = MagicMock()
         cfg.teamcity_base_url = "https://cfg-tc.example.com"
@@ -104,7 +104,7 @@ class TestTokenManagerInit:
             mgr = TeamCityTokenManager(username="u", password="p")
         assert mgr.base_url == "https://cfg-tc.example.com"
 
-    @patch("aurumaide.utility.teamcity_token.get_config")
+    @patch("aurumaide.teamcity.token.get_config")
     def test_missing_base_url_raises(self, mock_gc):
         cfg = MagicMock()
         cfg.teamcity_base_url = ""
@@ -139,7 +139,7 @@ SAMPLE_TOKEN = {
 
 
 class TestListTokens:
-    @patch("aurumaide.utility.teamcity_token.requests.get")
+    @patch("aurumaide.teamcity.token.requests.get")
     def test_success(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -161,7 +161,7 @@ class TestListTokens:
         )
         assert call_args[1]["auth"] == (USERNAME, PASSWORD)
 
-    @patch("aurumaide.utility.teamcity_token.requests.get")
+    @patch("aurumaide.teamcity.token.requests.get")
     def test_empty(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -173,7 +173,7 @@ class TestListTokens:
 
         assert result == []
 
-    @patch("aurumaide.utility.teamcity_token.requests.get")
+    @patch("aurumaide.teamcity.token.requests.get")
     def test_http_error(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -186,7 +186,7 @@ class TestListTokens:
             mgr.list_tokens()
         assert exc_info.value.status_code == 401
 
-    @patch("aurumaide.utility.teamcity_token.requests.get")
+    @patch("aurumaide.teamcity.token.requests.get")
     def test_network_error(self, mock_get):
         mock_get.side_effect = requests_lib.ConnectionError("Connection refused")
 
@@ -201,7 +201,7 @@ class TestListTokens:
 
 
 class TestCreateToken:
-    @patch("aurumaide.utility.teamcity_token.requests.post")
+    @patch("aurumaide.teamcity.token.requests.post")
     def test_success(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -227,7 +227,7 @@ class TestCreateToken:
         )
         assert call_args[1]["auth"] == (USERNAME, PASSWORD)
 
-    @patch("aurumaide.utility.teamcity_token.requests.post")
+    @patch("aurumaide.teamcity.token.requests.post")
     def test_url_contains_token_name(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -240,7 +240,7 @@ class TestCreateToken:
         url = mock_post.call_args[0][0]
         assert url.endswith("/custom-name")
 
-    @patch("aurumaide.utility.teamcity_token.requests.post")
+    @patch("aurumaide.teamcity.token.requests.post")
     def test_body_has_expiration_time(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -254,7 +254,7 @@ class TestCreateToken:
         assert "expirationTime" in json_body
         assert json_body["expirationTime"].endswith("+0000")
 
-    @patch("aurumaide.utility.teamcity_token.requests.post")
+    @patch("aurumaide.teamcity.token.requests.post")
     def test_http_error(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -267,7 +267,7 @@ class TestCreateToken:
             mgr.create_token("bad-token")
         assert exc_info.value.status_code == 400
 
-    @patch("aurumaide.utility.teamcity_token.requests.post")
+    @patch("aurumaide.teamcity.token.requests.post")
     def test_network_error(self, mock_post):
         mock_post.side_effect = requests_lib.ConnectionError("Connection refused")
 
@@ -282,7 +282,7 @@ class TestCreateToken:
 
 
 class TestDeleteToken:
-    @patch("aurumaide.utility.teamcity_token.requests.delete")
+    @patch("aurumaide.teamcity.token.requests.delete")
     def test_success(self, mock_delete):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -299,7 +299,7 @@ class TestDeleteToken:
         )
         assert call_args[1]["auth"] == (USERNAME, PASSWORD)
 
-    @patch("aurumaide.utility.teamcity_token.requests.delete")
+    @patch("aurumaide.teamcity.token.requests.delete")
     def test_http_error(self, mock_delete):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -312,7 +312,7 @@ class TestDeleteToken:
             mgr.delete_token("nonexistent")
         assert exc_info.value.status_code == 404
 
-    @patch("aurumaide.utility.teamcity_token.requests.delete")
+    @patch("aurumaide.teamcity.token.requests.delete")
     def test_network_error(self, mock_delete):
         mock_delete.side_effect = requests_lib.ConnectionError("Connection refused")
 

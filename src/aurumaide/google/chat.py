@@ -3,8 +3,8 @@
 import os
 
 from google import genai
-from google.genai.chats import Chat
 from google.genai import types
+from google.genai.chats import Chat
 
 from ..utility.config import get_config
 from ..utility.logger import ChatLogger

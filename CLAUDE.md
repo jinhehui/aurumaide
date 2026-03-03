@@ -37,7 +37,8 @@ mypy src                        # strict mode enabled
 - **`utility/config.py`** — Singleton JSON config manager at `~/.aurumaide/config.json`. Auto-creates with defaults on first access. Sections: `openai`, `gemini`, `teamcity`.
 - **`utility/logger.py`** — `ChatLogger` accumulates streaming chunks and saves as timestamped markdown. Also handles home directory resolution: `AURUMAIDE_HOME` env var → nearest `.git` root → `~/.aurumaide` fallback.
 - **`utility/output.py`** — `Output` abstract protocol with `write()`/`end()`. `ConsoleOutput` handles streaming display and optional `ChatLogger` integration.
-- **`utility/teamcity.py`** / **`teamcity_token.py`** — TeamCity REST API client and token manager using frozen dataclasses for models (`Project`, `Build`, `Token`).
+- **`teamcity/client.py`** — TeamCity REST API client using bearer token authentication. Frozen dataclasses for models (`Project`, `Build`). Custom exception hierarchy: `TeamCityError` → `TeamCityAPIError`.
+- **`teamcity/token.py`** — TeamCity token manager using HTTP basic auth. Creates, lists, and deletes access tokens (`Token` dataclass).
 
 ### Key Patterns
 

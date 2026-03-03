@@ -17,8 +17,8 @@ from typing import Any
 
 import urllib3
 
+from aurumaide.teamcity.client import TeamCityClient, TeamCityError
 from aurumaide.utility.logger import get_out_dir, get_timestamp, initialize
-from aurumaide.utility.teamcity import TeamCityClient, TeamCityError
 
 DEFAULT_BUILD_NUMBER = "2574"
 DEFAULT_BUILD_TYPE_ID = "GitRc2_CiReleasePackage"

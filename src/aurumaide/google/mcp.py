@@ -43,7 +43,7 @@ def google_ai(query: str) -> str:
         contents=query,
         config=types.GenerateContentConfig(tools=[grounding_tool])
     )
-    return _log(query, response.text)
+    return _log(query, response.text or "")
 
 
 if __name__ == "__main__":

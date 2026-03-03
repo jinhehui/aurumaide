@@ -52,16 +52,13 @@ class TestGoogleAi:
 
         mock_response = MagicMock()
         mock_response.text = "Paris is the capital of France."
-        mock_session = MagicMock()
-        mock_session.send_message.return_value = mock_response
-        mock_genai.Client.return_value.chats.create.return_value = mock_session
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            mock_response
+        )
 
         result = google_ai("What is the capital of France?")
 
         assert result == "Paris is the capital of France."
-        mock_session.send_message.assert_called_once_with(
-            "What is the capital of France?"
-        )
 
     @patch("aurumaide.google.mcp._log", side_effect=lambda q, r: r)
     @patch("aurumaide.google.mcp.genai")
@@ -75,15 +72,16 @@ class TestGoogleAi:
         cfg.gemini_api_key = "k"
         mock_gc.return_value = cfg
 
-        mock_genai.Client.return_value.chats.create.return_value = MagicMock(
-            send_message=MagicMock(return_value=MagicMock(text=""))
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            MagicMock(text="")
         )
 
         google_ai("q")
 
-        mock_genai.Client.return_value.chats.create.assert_called_once_with(
-            model=HARDCODED_DEFAULT_MODEL
+        call_kwargs = (
+            mock_genai.Client.return_value.models.generate_content.call_args
         )
+        assert call_kwargs.kwargs["model"] == HARDCODED_DEFAULT_MODEL
 
     @patch("aurumaide.google.mcp._log", side_effect=lambda q, r: r)
     @patch("aurumaide.google.mcp.genai")
@@ -97,15 +95,16 @@ class TestGoogleAi:
         cfg.gemini_api_key = "k"
         mock_gc.return_value = cfg
 
-        mock_genai.Client.return_value.chats.create.return_value = MagicMock(
-            send_message=MagicMock(return_value=MagicMock(text=""))
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            MagicMock(text="")
         )
 
         google_ai("q")
 
-        mock_genai.Client.return_value.chats.create.assert_called_once_with(
-            model="custom-model"
+        call_kwargs = (
+            mock_genai.Client.return_value.models.generate_content.call_args
         )
+        assert call_kwargs.kwargs["model"] == "custom-model"
 
     @patch("aurumaide.google.mcp._log", side_effect=lambda q, r: r)
     @patch("aurumaide.google.mcp.genai")
@@ -119,8 +118,8 @@ class TestGoogleAi:
         cfg.gemini_api_key = "config-key"
         mock_gc.return_value = cfg
 
-        mock_genai.Client.return_value.chats.create.return_value = MagicMock(
-            send_message=MagicMock(return_value=MagicMock(text=""))
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            MagicMock(text="")
         )
 
         google_ai("q")
@@ -139,8 +138,8 @@ class TestGoogleAi:
         cfg.gemini_api_key = "config-key"
         mock_gc.return_value = cfg
 
-        mock_genai.Client.return_value.chats.create.return_value = MagicMock(
-            send_message=MagicMock(return_value=MagicMock(text=""))
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            MagicMock(text="")
         )
 
         google_ai("q")
@@ -159,8 +158,8 @@ class TestGoogleAi:
         cfg.gemini_api_key = "k"
         mock_gc.return_value = cfg
 
-        mock_genai.Client.return_value.chats.create.return_value = MagicMock(
-            send_message=MagicMock(return_value=MagicMock(text="answer"))
+        mock_genai.Client.return_value.models.generate_content.return_value = (
+            MagicMock(text="answer")
         )
 
         google_ai("question")

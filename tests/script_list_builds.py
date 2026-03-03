@@ -11,8 +11,8 @@ from typing import Any
 
 import urllib3
 
+from aurumaide.teamcity.client import TeamCityAPIError, TeamCityClient, TeamCityError
 from aurumaide.utility.logger import initialize
-from aurumaide.utility.teamcity import TeamCityAPIError, TeamCityClient, TeamCityError
 
 BRANCH = "develop"
 

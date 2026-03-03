@@ -10,8 +10,8 @@ import warnings
 
 import urllib3
 
+from aurumaide.teamcity.client import TeamCityClient, TeamCityError
 from aurumaide.utility.logger import initialize
-from aurumaide.utility.teamcity import TeamCityClient, TeamCityError
 
 
 def main() -> int:

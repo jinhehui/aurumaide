@@ -1,4 +1,4 @@
-"""Tests for aurumaide.utility.teamcity."""
+"""Tests for aurumaide.teamcity.client."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests as requests_lib
 
-from aurumaide.utility.teamcity import (
+from aurumaide.teamcity.client import (
     Build,
     Project,
     TeamCityAPIError,
@@ -145,7 +145,7 @@ class TestClientInit:
             assert client.base_url == "https://env-tc.example.com"
             assert client.token == "env-token"
 
-    @patch("aurumaide.utility.teamcity.get_config")
+    @patch("aurumaide.teamcity.client.get_config")
     def test_config_fallback(self, mock_gc):
         cfg = MagicMock()
         cfg.teamcity_base_url = "https://cfg-tc.example.com"
@@ -156,7 +156,7 @@ class TestClientInit:
         assert client.base_url == "https://cfg-tc.example.com"
         assert client.token == "cfg-token"
 
-    @patch("aurumaide.utility.teamcity.get_config")
+    @patch("aurumaide.teamcity.client.get_config")
     def test_missing_base_url_raises(self, mock_gc):
         cfg = MagicMock()
         cfg.teamcity_base_url = ""
@@ -167,7 +167,7 @@ class TestClientInit:
         ):
             TeamCityClient(token="tok")
 
-    @patch("aurumaide.utility.teamcity.get_config")
+    @patch("aurumaide.teamcity.client.get_config")
     def test_missing_token_raises(self, mock_gc):
         cfg = MagicMock()
         cfg.teamcity_base_url = ""
@@ -191,7 +191,7 @@ SAMPLE_PROJECT = {
 
 
 class TestListProjects:
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_success(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -211,7 +211,7 @@ class TestListProjects:
         assert call_args[0][0] == f"{BASE_URL}/app/rest/projects"
         assert call_args[1]["headers"]["Authorization"] == f"Bearer {TOKEN}"
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_empty(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -223,7 +223,7 @@ class TestListProjects:
 
         assert result == []
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_http_error(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -236,7 +236,7 @@ class TestListProjects:
             client.list_projects()
         assert exc_info.value.status_code == 403
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_network_error(self, mock_get):
         mock_get.side_effect = requests_lib.ConnectionError("Connection refused")
 
@@ -264,7 +264,7 @@ SAMPLE_BUILD = {
 
 
 class TestGetLatestBuild:
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_success(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -292,7 +292,7 @@ class TestGetLatestBuild:
         assert "branch:<default>" in params["locator"]
         assert "count:1" in params["locator"]
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_none_when_empty(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -304,7 +304,7 @@ class TestGetLatestBuild:
 
         assert result is None
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_none_when_missing_key(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -323,7 +323,7 @@ class TestGetLatestBuild:
 
 
 class TestStartBuild:
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_success(self, mock_post):
         response_build = {
             "id": 800,
@@ -355,7 +355,7 @@ class TestStartBuild:
         assert json_body["buildType"]["id"] == "MyBuild"
         assert json_body["branchName"] == "feature/x"
 
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_not_personal(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -373,7 +373,7 @@ class TestStartBuild:
         json_body = mock_post.call_args[1]["json"]
         assert json_body["personal"] is False
 
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_http_error(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -393,7 +393,7 @@ class TestStartBuild:
 
 
 class TestGetBuild:
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_success(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -409,7 +409,7 @@ class TestGetBuild:
         call_args = mock_get.call_args
         assert call_args[0][0] == f"{BASE_URL}/app/rest/builds/id:789"
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_not_found(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -429,7 +429,7 @@ class TestGetBuild:
 
 
 class TestCancelBuild:
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_success(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -447,7 +447,7 @@ class TestCancelBuild:
         assert 'readdIntoQueue="false"' in body
         assert call_args[1]["headers"]["Content-Type"] == "application/xml"
 
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_empty_comment(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -459,7 +459,7 @@ class TestCancelBuild:
         body = mock_post.call_args[1]["data"]
         assert 'comment=""' in body
 
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_http_error(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -472,7 +472,7 @@ class TestCancelBuild:
             client.cancel_build(789)
         assert exc_info.value.status_code == 409
 
-    @patch("aurumaide.utility.teamcity.requests.post")
+    @patch("aurumaide.teamcity.client.requests.post")
     def test_network_error(self, mock_post):
         mock_post.side_effect = requests_lib.ConnectionError("Connection refused")
 
@@ -487,7 +487,7 @@ class TestCancelBuild:
 
 
 class TestDownloadBuildLog:
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_success(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = True
@@ -504,7 +504,7 @@ class TestDownloadBuildLog:
         assert call_args[0][0] == f"{BASE_URL}/downloadBuildLog.html?buildId=789"
         assert call_args[1]["headers"]["Accept"] == "text/plain"
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_http_error(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.ok = False
@@ -517,7 +517,7 @@ class TestDownloadBuildLog:
             client.download_build_log(99999)
         assert exc_info.value.status_code == 404
 
-    @patch("aurumaide.utility.teamcity.requests.get")
+    @patch("aurumaide.teamcity.client.requests.get")
     def test_network_error(self, mock_get):
         mock_get.side_effect = requests_lib.ConnectionError("Connection refused")
 

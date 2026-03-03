@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "python-dotenv>=1.0",
     "google-genai>=1.0",
+    "mcp>=1.0",
 ]
 
 [project.scripts]
